@@ -1,3 +1,24 @@
+exports.updateLink = async (snap, context, admin, params) => {
+  const { getMetaData } = params;
+  const { src } = snap.data();
+  const { userId, linkId } = context.params;
+
+  const metadata = await getMetaData(src);
+
+  const { title, description, image } = metadata;
+
+  await admin
+    .firestore()
+    .collection("users")
+    .doc(userId)
+    .collection("links")
+    .doc(linkId)
+    .update({
+      metadata: { title, description, image },
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
+};
+
 exports.duplicateLink = async (snap, context, admin) => {
   const { src } = snap.data();
   const { userId, linkId } = context.params;

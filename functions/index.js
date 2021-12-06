@@ -4,6 +4,7 @@ const admin = require("firebase-admin");
 const { v4: uuidv4 } = require("uuid");
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const getMetaData = require("metadata-scraper");
 
 admin.initializeApp();
 
@@ -64,7 +65,13 @@ exports.onUserCreated = functions.auth
 
 exports.onLinkCreated = functions.firestore
   .document("users/{userId}/links/{linkId}")
-  .onCreate(async (snap, context) => await OnLinkCreated(snap, context, admin));
+  .onCreate(
+    async (snap, context) =>
+      await OnLinkCreated(snap, context, admin, {
+        getMetaData,
+        logger: functions.logger.log,
+      })
+  );
 
 exports.onLinkDeleted = functions.firestore
   .document("links/{linkId}")
@@ -101,3 +108,15 @@ exports.OnTemporaryUserLinkDeleted = functions.firestore
 exports.generateTemporaryUniqueId = functions.https.onCall(
   generateTemporaryUniqueId
 );
+
+if (isDevelopmentMode) {
+  exports.createUser = functions.https.onRequest(async (req, res) => {
+    admin.auth().createUser({
+      uid: "g3tDd61PdPatq14n1pewDn678q22",
+      email: "john@domain.tld",
+      password: "123456",
+    });
+
+    res.send("User created");
+  });
+}

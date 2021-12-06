@@ -5,7 +5,7 @@ exports.updateLink = async (snap, context, admin, params) => {
 
   const metadata = await getMetaData(src);
 
-  const { title, description, image } = metadata;
+  const { title = "", description = "", image = "" } = metadata;
 
   await admin
     .firestore()
@@ -14,7 +14,7 @@ exports.updateLink = async (snap, context, admin, params) => {
     .collection("links")
     .doc(linkId)
     .update({
-      metadata: { title, description, image },
+      metadata: { name: title, description, image },
       created_at: admin.firestore.FieldValue.serverTimestamp(),
     });
 };

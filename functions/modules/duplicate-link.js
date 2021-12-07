@@ -14,6 +14,7 @@ exports.updateLink = async (snap, context, admin, params) => {
     .collection("links")
     .doc(linkId)
     .update({
+      name: title,
       metadata: { name: title, description, image },
       created_at: admin.firestore.FieldValue.serverTimestamp(),
     });

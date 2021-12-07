@@ -3,20 +3,32 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "hosting": {
-    "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "/l/**",
-        "function": "redirect"
-      }
-    ]
-  },
+  "hosting": [
+    {
+      "target": "www",
+      "public": "dist/www",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "/l/**",
+          "function": "redirect"
+        }
+      ]
+    },
+    {
+      "target": "app",
+      "public": "dist/app",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ]
+    }
+  ],
   "storage": {
     "rules": "storage.rules"
   },

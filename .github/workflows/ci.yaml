@@ -1,0 +1,25 @@
+name: Firebase CI
+
+on:
+  push: 
+    branches: 
+      - develop
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  test:
+    name: Build and release
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install modules
+        run: npm --prefix functions i
+        
+      - name: Run tests
+        run: npm --prefix functions run test

@@ -22,7 +22,7 @@ test("Should rounded second to date in hour", () => {
   // ASSERT
   expect(date.getSeconds()).toBe(0);
   expect(date.getMinutes()).toBe(0);
-  expect(date.getHours()).toBe(18);
+  expect(date.getHours()).toBe(17);
 });
 
 test("Should rounded second to date in day", () => {

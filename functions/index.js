@@ -109,6 +109,84 @@ exports.generateTemporaryUniqueId = functions.https.onCall(
   generateTemporaryUniqueId
 );
 
+exports.generateTrackingId = functions.https.onCall(async (data, context) => {
+  const { uid } = context.auth;
+
+  if (uid == null) {
+    throw new functions.https.HttpsError("unauthenticated");
+  }
+
+  const { url } = data;
+
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  const baseTrackingId = `${year}${month}${day}`;
+
+  const trackingFound = await admin
+    .firestore()
+    .collection("trackings")
+    .where("baseTrackingId", "==", baseTrackingId)
+    .where("url", "==", url)
+    .get();
+
+  if (trackingFound.size > 0) {
+    const trackingIdDocument = trackingFound.docs[0];
+
+    const data = trackingIdDocument.data();
+
+    return { ...data, trackingId: trackingIdDocument.id };
+  }
+
+  const trackingsResult = await admin
+    .firestore()
+    .collection("trackings")
+    .where("baseTrackingId", "==", baseTrackingId)
+    .get();
+
+  const trackingId = `${baseTrackingId}-${trackingsResult.size + 1}`;
+
+  const created_at = admin.firestore.FieldValue.serverTimestamp();
+
+  try {
+    await admin
+      .firestore()
+      .collection("trackings")
+      .doc(trackingId)
+      .set({
+        created_at,
+        baseTrackingId,
+        url,
+        trackingId,
+        userRef: admin.firestore().doc(`users/${uid}`),
+      });
+  } catch (error) {
+    console.error(error);
+  }
+
+  try {
+    await admin
+      .firestore()
+      .doc(`users/${uid}`)
+      .collection("trackings")
+      .doc(trackingId)
+      .set({
+        trackingRef: admin.firestore().doc(`trackings/${trackingId}`),
+        url,
+        created_at,
+      });
+  } catch (error) {
+    console.error(error);
+  }
+
+  return {
+    trackingId,
+    url,
+  };
+});
+
 if (isDevelopmentMode) {
   exports.createUser = functions.https.onRequest(async (req, res) => {
     admin.auth().createUser({

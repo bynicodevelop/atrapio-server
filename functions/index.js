@@ -30,6 +30,15 @@ const {
   onTemporaryLinkCreated,
   onTemporaryUserLinkDeleted,
 } = require("./modules/on-call-methods/generate-unique-id");
+const {
+  OnNewVisitTracked,
+} = require("./modules/triggers/on-new-visit-tracked");
+const {
+  OnNewEventTracked,
+} = require("./modules/triggers/on-new-event-tracked");
+const {
+  OnUpdateVisitTracked,
+} = require("./modules/triggers/on-update-visit-tracked");
 
 const app = express();
 
@@ -104,6 +113,20 @@ exports.OnTemporaryLinkGenerated = functions.firestore
 exports.OnTemporaryUserLinkDeleted = functions.firestore
   .document("users/{userId}/temporary-links/{linkId}")
   .onDelete(onTemporaryUserLinkDeleted);
+
+exports.onNewVisitTracked = functions.firestore
+  .document("trackings/{trackingId}/stats/{statId}/visits/{visitId}")
+  .onCreate(OnNewVisitTracked);
+
+exports.onNewEventTracked = functions.firestore
+  .document(
+    "trackings/{trackingId}/stats/{statId}/visits/{visitId}/events/{eventId}"
+  )
+  .onCreate(OnNewEventTracked);
+
+exports.onUpdateVisitTracked = functions.firestore
+  .document("trackings/{trackingId}/stats/{statId}")
+  .onWrite(OnUpdateVisitTracked);
 
 exports.generateTemporaryUniqueId = functions.https.onCall(
   generateTemporaryUniqueId
@@ -196,5 +219,63 @@ if (isDevelopmentMode) {
     });
 
     res.send("User created");
+  });
+
+  exports.createStats = functions.https.onRequest(async (req, res) => {
+    body = req.body;
+
+    if (body.length > 0) {
+      for (let index = 0; index < body.length; index++) {
+        const { uid, data } = body[index];
+
+        for (const key in data) {
+          if (data.hasOwnProperty(key)) {
+            const {
+              start_time,
+              page,
+              referrerHost = "",
+              query = {},
+              events = [],
+            } = data[key];
+
+            const visitsRef = await admin
+              .firestore()
+              .collection("trackings")
+              .doc("2021118-1")
+              .collection("stats")
+              .doc(uid)
+              .collection("visits")
+              .doc(start_time.toString());
+
+            visitsRef.set({ start_time, page, query, referrerHost });
+
+            if (events) {
+              for (const event of events) {
+                const { created_at } = event;
+
+                await visitsRef
+                  .collection("events")
+                  .doc(created_at.toString())
+                  .set(event);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    res.send("Stats created");
+  });
+
+  exports.getStats = functions.https.onRequest(async (req, res) => {
+    // BESOIN
+    // Nombre de visites uniques
+    // Nombre de visites par jours
+    // Nombre de convertions
+    // Referrer
+
+    res.json({
+      trackingId: req.query.trackingId,
+    });
   });
 }

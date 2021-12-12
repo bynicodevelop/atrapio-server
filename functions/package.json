@@ -2,11 +2,12 @@
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "scripts": {
-    "serve": "firebase emulators:start --import=./data/V3 --export-on-exit=./data/V3",
+    "serve": "firebase emulators:start --import=./data/V4 --export-on-exit=./data/V4",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy",
     "deploy:functions": "npm run deploy -- --only functions",
+    "deploy:www": "npm run deploy -- --only hosting:www",
     "logs": "firebase functions:log",
     "test": "jest"
   },

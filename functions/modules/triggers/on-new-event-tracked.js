@@ -2,7 +2,7 @@ const admin = require("firebase-admin");
 const _ = require("lodash");
 
 const eventExtractor = (eventData, dataStat) => {
-  const { event, created_at, value, page } = eventData;
+  const { event, created_at, value, page, eventRef, visitRef } = eventData;
   const listEvents = ["TrackerEvent.prospect", "EventTracker.click"];
 
   if (listEvents.includes(event)) {
@@ -12,6 +12,8 @@ const eventExtractor = (eventData, dataStat) => {
         conversion_date: created_at,
         value,
         page,
+        eventRef,
+        visitRef,
       };
     }
   }
@@ -50,9 +52,19 @@ exports.OnNewEventTracked = async (snap, context) => {
     .doc(`trackings/${trackingId}/stats/${statId}/visits/${visitId}`)
     .get();
 
-  const { page, start_time } = visitRef.data();
+  const { page } = visitRef.data();
 
-  eventExtractor({ event, created_at, value, page }, dataStat);
+  eventExtractor(
+    {
+      event,
+      created_at,
+      value,
+      page,
+      eventRef: snap.ref,
+      visitRef: visitRef.ref,
+    },
+    dataStat
+  );
 
   const { conversion = {} } = dataStat;
 

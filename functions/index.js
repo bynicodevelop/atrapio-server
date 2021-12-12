@@ -114,16 +114,29 @@ exports.OnTemporaryUserLinkDeleted = functions.firestore
   .document("users/{userId}/temporary-links/{linkId}")
   .onDelete(onTemporaryUserLinkDeleted);
 
+/**
+ * Remonte le nombre de visites par session utilisateur
+ * (par visiteur)
+ * Permet en même temps de remonter les informations relatives à une visite
+ * (referer, dernière visite...)
+ */
 exports.onNewVisitTracked = functions.firestore
   .document("trackings/{trackingId}/stats/{statId}/visits/{visitId}")
   .onCreate(OnNewVisitTracked);
 
+/**
+ * Remonte les informations en provenance des événements.
+ * (conversion, click...)
+ */
 exports.onNewEventTracked = functions.firestore
   .document(
     "trackings/{trackingId}/stats/{statId}/visits/{visitId}/events/{eventId}"
   )
   .onCreate(OnNewEventTracked);
 
+/**
+ * Permet de générer les stats générales associées à un ID de tracking
+ */
 exports.onUpdateVisitTracked = functions.firestore
   .document("trackings/{trackingId}/stats/{statId}")
   .onWrite(OnUpdateVisitTracked);

@@ -2,7 +2,7 @@
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "scripts": {
-    "serve": "firebase emulators:start --import=./data/V5 --export-on-exit=./data/V4",
+    "serve": "firebase emulators:start",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy",
@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "firebase-functions-test": "^0.2.0",
+    "firestore-export-import": "^0.17.0",
     "jest": "^27.3.1"
   },
   "private": true

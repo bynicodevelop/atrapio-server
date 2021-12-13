@@ -28,6 +28,20 @@ Se positionner à la racine du projet.
 npm --prefix functions run serve
 ```
 
+## Charger les jeux de données
+
+Lancer dans le terminal la commande suivante :
+
+```
+curl http://localhost:5001/PROJECT-ID/us-central1/setDataSet
+```
+
+Ou l'url suivante dans un navigateur : 
+
+```
+http://localhost:5001/PROJECT-ID/us-central1/setDataSet
+```
+
 ## Déployer les fonctions
 
 Se positionner à la racine du projet.

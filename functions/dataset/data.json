@@ -1,0 +1,68 @@
+{
+    "users": {
+        "g3tDd61PdPatq14n1pewDn678q22": {
+            "trackings": {
+                "2021118-1": {
+                    "created_at": "8 décembre 2021 à 17:45:34 UTC+1",
+                    "trackingRef": "/trackings/2021118-1",
+                    "url": "https://nico-develop.com"
+                }
+            }, 
+            "links": {
+                "58GhnI": {
+                    "linkId": "58GhnI",
+                    "created_at": 1639390774,
+                    "linkRef": "/links/58GhnI",
+                    "name": "Nico-develop",
+                    "src": "https://nico-develop.com"
+                },
+                "69GhnI": {
+                    "linkId": "69GhnI",
+                    "created_at": 1638353974,
+                    "linkRef": "/links/69GhnI",
+                    "name": "Nico-develop La chaine",
+                    "src": "https://www.youtube.com/c/NicoDevelop"
+                }
+            }
+        }
+    },
+    "trackings": {
+        "2021118-1": {
+            "url": "https://nico-develop.com",
+            "pages": {
+                "QJ850wMowH2laZaNeKgF": {
+                    "page": "/programme-formation-flutter/",
+                    "visits": 5
+                },
+                "ycvAS8a0Obu54qBD4NX9": {
+                    "page": "/confirmation-formation-flutter/",
+                    "visits": 5
+                }
+            },
+            "prospects_conversions": {
+                "1639333102191": {
+                    "conversion_date": 1639333102191,
+                    "page": "/confirmation-formation-flutter/",
+                    "prospect": true,
+                    "value": ""
+                },
+                "1639366168253": {
+                    "conversion_date": 1639366168253,
+                    "page": "/confirmation-formation-flutter/",
+                    "prospect": true,
+                    "value": ""
+                }
+            },
+            "stats": {
+                "kh87Nck5tTXrxlAGp1wprmsZgdp1": {
+                    "email": "jeffb@domain.tld",
+                    "last_visit_at": 1638353974
+                },
+                "qduTKLQJHfYUVzPYdez1yxYljhF2": {
+                    "email": "john@domain.tld",
+                    "last_visit_at": 1638440374
+                }
+            }
+        }
+    }
+}

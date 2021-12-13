@@ -1,5 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const dataSet = require("./dataset/data.json");
 
 const { v4: uuidv4 } = require("uuid");
 const express = require("express");
@@ -224,16 +225,6 @@ exports.generateTrackingId = functions.https.onCall(async (data, context) => {
 });
 
 if (isDevelopmentMode) {
-  exports.createUser = functions.https.onRequest(async (req, res) => {
-    admin.auth().createUser({
-      uid: "g3tDd61PdPatq14n1pewDn678q22",
-      email: "john@domain.tld",
-      password: "123456",
-    });
-
-    res.send("User created");
-  });
-
   exports.createStats = functions.https.onRequest(async (req, res) => {
     body = req.body;
 
@@ -280,15 +271,116 @@ if (isDevelopmentMode) {
     res.send("Stats created");
   });
 
-  exports.getStats = functions.https.onRequest(async (req, res) => {
-    // BESOIN
-    // Nombre de visites uniques
-    // Nombre de visites par jours
-    // Nombre de convertions
-    // Referrer
+  exports.setDataSet = functions.https.onRequest(async (req, res) => {
+    await setUserDataSet(dataSet);
 
-    res.json({
-      trackingId: req.query.trackingId,
-    });
+    await setTrackingDataSet(dataSet);
+
+    res.json({ stats: "ok" });
   });
 }
+
+const setTrackingDataSet = async (dataSet) => {
+  const key = "trackings";
+
+  const tackingsIds = Object.keys(dataSet[key]);
+
+  for (const trackingId of tackingsIds) {
+    const { url, pages, prospects_conversions, stats } =
+      dataSet[key][trackingId];
+
+    const trackingRef = admin.firestore().doc(`trackings/${trackingId}`);
+
+    trackingRef.set({ url });
+
+    const pagesIds = Object.keys(pages);
+
+    for (const pageId of pagesIds) {
+      const { page, visits } = pages[pageId];
+
+      await trackingRef.collection("pages").doc(pageId).set({ page, visits });
+    }
+
+    const prospectsConversionsIds = Object.keys(prospects_conversions);
+
+    for (const prospectConversionId of prospectsConversionsIds) {
+      const { conversion_date, page, prospect, value } =
+        prospects_conversions[prospectConversionId];
+
+      await trackingRef
+        .collection("prospects_conversions")
+        .doc(prospectConversionId)
+        .set({ conversion_date, page, prospect, value });
+    }
+
+    const statsIds = Object.keys(stats);
+
+    for (const statId of statsIds) {
+      const { email, last_visit_at } = stats[statId];
+
+      await trackingRef
+        .collection("stats")
+        .doc(statId)
+        .set({ email, last_visit_at });
+    }
+  }
+};
+
+const setUserDataSet = async (data) => {
+  await admin.auth().createUser({
+    uid: "g3tDd61PdPatq14n1pewDn678q22",
+    email: "john@domain.tld",
+    password: "123456",
+  });
+
+  const key = "users";
+
+  const userIds = Object.keys(data[key]);
+
+  for (const indexId in userIds) {
+    if (Object.hasOwnProperty.call(userIds, indexId)) {
+      const userId = userIds[indexId];
+
+      const trackingCollection = data[key][userId]["trackings"];
+
+      const trackingId = Object.keys(trackingCollection);
+
+      for (const indexTracking in trackingId) {
+        if (Object.hasOwnProperty.call(trackingId, indexTracking)) {
+          const tracking = trackingId[indexTracking];
+          const { created_at, trackingRef, url } = trackingCollection[tracking];
+
+          const trackingReference = await admin
+            .firestore()
+            .collection("users")
+            .doc(userId)
+            .collection("trackings")
+            .doc(tracking);
+
+          await trackingReference.set({ created_at, trackingRef, url });
+        }
+      }
+
+      const linksId = Object.keys(data[key][userId]["links"]);
+
+      for (const indexLink in linksId) {
+        if (Object.hasOwnProperty.call(linksId, indexLink)) {
+          const linkIdRef = linksId[indexLink];
+
+          const { linkId, created_at, linkRef, name, src } =
+            data[key][userId]["links"][linkIdRef];
+
+          console.log();
+
+          await admin
+            .firestore()
+            .collection("users")
+            .doc(userId)
+            .collection("links")
+            .doc(linkIdRef)
+            .set({ linkId, created_at, linkRef, name, src });
+        }
+      }
+    }
+  }
+};

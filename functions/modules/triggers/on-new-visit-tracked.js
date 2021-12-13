@@ -14,17 +14,17 @@ const emailExtractor = (stat, dataStat) => {
 };
 
 const updateVisitPerPage = (data, params) => {
-  const { start_time, page, pages } = params;
+  const { start_time, page, pages, visitRef } = params;
 
   if (Object.keys(pages).includes(page)) {
-    pages[page] = { ...pages[page], ...{ [start_time]: true } };
+    pages[page] = { ...pages[page], ...{ [start_time]: visitRef } };
 
     data["pages"] = pages;
   } else {
     data["pages"] = {
       ...pages,
       ...{
-        [page]: { [start_time]: true },
+        [page]: { [start_time]: visitRef },
       },
     };
   }
@@ -51,7 +51,7 @@ exports.OnNewVisitTracked = async (snap, context) => {
     n_visits: admin.firestore.FieldValue.increment(1),
   };
 
-  updateVisitPerPage(data, { page, start_time, pages });
+  updateVisitPerPage(data, { page, start_time, pages, visitRef: snap.ref });
 
   if (!_.isEmpty(referrerHost)) {
     data["referrersHost"] = admin.firestore.FieldValue.arrayUnion(referrerHost);

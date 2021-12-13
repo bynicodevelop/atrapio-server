@@ -1,5 +1,8 @@
 const admin = require("firebase-admin");
 const _ = require("lodash");
+const {
+  extractDiffVisitsPageStats,
+} = require("../helpers/extract-diff-visits-page-stats");
 
 const prospectsConversions = async (beforeData, afterData, params) => {
   const { trackingId } = params;
@@ -33,10 +36,61 @@ const prospectsConversions = async (beforeData, afterData, params) => {
   }
 };
 
+const updateVisitPerPage = async (beforeData, afterData, params) => {
+  const { trackingId } = params;
+
+  const statsDiff = extractDiffVisitsPageStats(
+    beforeData["pages"] ?? {},
+    afterData["pages"] ?? {}
+  );
+
+  const visitPerPageRef = admin
+    .firestore()
+    .doc(`/trackings/${trackingId}`)
+    .collection("pages");
+
+  for (const page in statsDiff) {
+    if (Object.hasOwnProperty.call(statsDiff, page)) {
+      const element = statsDiff[page];
+
+      const itemId = Object.keys(element)[0];
+
+      const pageVisit = await visitPerPageRef.where("page", "==", page).get();
+
+      let pageVisitDocRef = null;
+
+      const data = {
+        page,
+        visits: admin.firestore.FieldValue.increment(1),
+      };
+
+      if (pageVisit.size == 0) {
+        pageVisitDocRef = await visitPerPageRef.add(data);
+      } else {
+        pageVisitDoc = pageVisit.docs[0];
+
+        pageVisitDocRef = pageVisitDoc.ref;
+
+        await pageVisitDocRef.update(data);
+      }
+
+      // TODO: Mettre une erreur si pageVisitDoc est null
+
+      await pageVisitDocRef
+        .collection("visits")
+        .doc(itemId)
+        .set({
+          [itemId]: element[itemId],
+        });
+    }
+  }
+};
+
 exports.OnUpdateVisitTracked = async (change, context) => {
   const { trackingId } = context.params;
   const beforeData = change.before.data();
   const afterData = change.after.data();
 
-  await prospectsConversions(beforeData, afterData, { trackingId });
+  await prospectsConversions(beforeData ?? {}, afterData ?? {}, { trackingId });
+  await updateVisitPerPage(beforeData ?? {}, afterData ?? {}, { trackingId });
 };

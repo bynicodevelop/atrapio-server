@@ -5,6 +5,7 @@ const { getRoudedDate } = require("../helpers/rounded-time");
 const {
   setClicksFromVisitsByDate,
 } = require("../helpers/set-clicks-from-visits-by-date");
+const { setNumberOfClicks } = require("../helpers/set-number-of-clicks");
 
 exports.OnNewVisit = async (snap, context, admin) => {
   const { linkId } = context.params;
@@ -56,4 +57,6 @@ exports.OnNewVisit = async (snap, context, admin) => {
     "clicks-by-minutes",
     admin
   );
+
+  await setNumberOfClicks(linkId, admin);
 };

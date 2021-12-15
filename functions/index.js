@@ -224,6 +224,32 @@ exports.generateTrackingId = functions.https.onCall(async (data, context) => {
   };
 });
 
+// exports.updateClicks = functions.https.onRequest(async (req, res) => {
+//   const linkList = await admin.firestore().collection("links").get();
+
+//   for (const linkItem in linkList.docs) {
+//     if (Object.hasOwnProperty.call(linkList.docs, linkItem)) {
+//       const link = linkList.docs[linkItem];
+
+//       const { userLinkRef } = link.data();
+
+//       const linkRef = admin.firestore().doc(`links/${link.id}`);
+
+//       const visits = await linkRef.collection("visits").get();
+
+//       const clicks = {
+//         clicks: visits.size,
+//       };
+
+//       await admin.firestore().doc(userLinkRef).update(clicks);
+
+//       await linkRef.update(clicks);
+//     }
+//   }
+
+//   res.json({ status: "ok" });
+// });
+
 if (isDevelopmentMode) {
   exports.createStats = functions.https.onRequest(async (req, res) => {
     body = req.body;
@@ -378,7 +404,13 @@ const setUserDataSet = async (data) => {
             .doc(userId)
             .collection("links")
             .doc(linkIdRef)
-            .set({ linkId, created_at, linkRef, name, src });
+            .set({
+              linkId,
+              created_at,
+              linkRef,
+              name,
+              src,
+            });
         }
       }
     }

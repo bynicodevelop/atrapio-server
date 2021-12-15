@@ -45,7 +45,7 @@ exports.OnNewVisit = async (snap, context, admin) => {
   await setClicksFromVisitsByDate(
     linkId,
     clicksByHours.length,
-    dateByDay.getTime(),
+    dateByHours.getTime(),
     "clicks-by-hours",
     admin
   );

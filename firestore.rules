@@ -17,7 +17,15 @@ service cloud.firestore {
       allow delete: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)/links/$(linkId));
     }
 
-     match /links/{linkId}/visits/{document=**} {
+    match /links/{linkId}/clicks-by-days/{document=**} {
+      allow read: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)/links/$(linkId));
+    }
+
+    match /links/{linkId}/clicks-by-hours/{document=**} {
+      allow read: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)/links/$(linkId));
+    }
+
+    match /links/{linkId}/visits/{document=**} {
       allow list: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)/links/$(linkId));
     }
   }

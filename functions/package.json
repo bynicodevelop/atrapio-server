@@ -7,6 +7,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy",
     "deploy:functions": "npm run deploy -- --only functions",
+    "deploy:firestore:rules": "npm run deploy -- --only firestore:rules",
     "deploy:www": "npm run deploy -- --only hosting:www",
     "logs": "firebase functions:log",
     "test": "jest"
